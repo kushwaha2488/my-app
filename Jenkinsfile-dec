@@ -1,0 +1,30 @@
+currentBuild.displayName = "execution-#"+currentBuild.number
+pipeline {
+    agent any
+    environment {
+        NEW_VERSION = '2.3.1'
+        PATH = "/usr/share/maven/bin:$PATH"
+    }
+    parameters {
+        string(name: 'FirstName', defaultValue: '', description: 'This is for demo only')
+        choice(name: 'FirstName', choices: ['Raj', 'Shilpi', 'Rahul'], description: 'This is for demo only')
+    }
+    stages {
+        stage ("Maven Build") {
+            steps {
+                sh "mvn clean package"
+            }
+        }
+        stage ("Test") {
+            steps {
+                echo "This is the Test phase"
+                echo "The new version is ${NEW_VERSION}"
+            }
+        }        
+    }
+    post {
+        always {
+            echo "BUILD EXECUTED"
+        }
+    }
+}
