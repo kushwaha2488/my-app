@@ -13,12 +13,25 @@ pipeline {
         stage ("Maven Build") {
             steps {
                 sh "mvn clean package"
+                sh "mv target/*.jar  target/myweb.jar"
             }
         }
         stage ("Test") {
             steps {
                 echo "This is the Test phase"
                 echo "The new version is ${NEW_VERSION}"
+            }
+        }  
+        stage ("deploy-dev") {
+           steps {
+                sshagent(['tomcat9']) {
+                       sh """
+                          'scp -o StrictHostKeyChecking=no  target/myweb.jar ec2-user@172.31.40.231:/opt/tomcat9/webapps/'
+                           ssh ec2-user@172.31.40.231 /opt/tomcat9/bin/shutdown.sh
+                           ssh ec2-user@172.31.40.231 /opt/tomcat9/bin/startup.sh
+                          """
+                }
+
             }
         }        
     }
